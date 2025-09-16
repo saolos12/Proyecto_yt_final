@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128), nullable=False)
+    password_hash = db.Column(db.String(256), nullable=False) # <--- CAMBIADO DE 128 A 256
     is_admin = db.Column(db.Boolean, default=False)
     ideas = db.relationship('Idea', backref='author', lazy='dynamic')
 
@@ -22,7 +22,7 @@ class Idea(db.Model):
     format = db.Column(db.String(50), nullable=False)
     tags = db.Column(db.String(200), default='')
     status = db.Column(db.String(20), default='Pendiente')
-    image_filename = db.Column(db.String(120), nullable=True) # Nuevo campo para la imagen
+    image_filename = db.Column(db.String(120), nullable=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def __repr__(self):
