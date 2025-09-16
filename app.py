@@ -7,7 +7,7 @@ from models import Idea, User
 from forms import IdeaForm, LoginForm, RegistrationForm
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from werkzeug.utils import secure_filename
-
+from sqlalchemy.exc import IntegrityError # <--- NUEVA IMPORTACIÓN
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'SaolosYolo.1aloyda') # Usar variable de entorno
@@ -100,12 +100,19 @@ def register():
         return redirect(url_for('index'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(username=form.username.data)
-        user.set_password(form.password.data)
-        db.session.add(user)
-        db.session.commit()
-        flash('¡Te has registrado con éxito! Ahora puedes iniciar sesión.', 'success')
-        return redirect(url_for('login'))
+        try: # <--- INICIO DEL BLOQUE TRY
+            user = User(username=form.username.data)
+            user.set_password(form.password.data)
+            db.session.add(user)
+            db.session.commit()
+            flash('¡Te has registrado con éxito! Ahora puedes iniciar sesión.', 'success')
+            return redirect(url_for('login'))
+        except IntegrityError: # <--- MANEJO DE ERROR DE INTEGRIDAD
+            db.session.rollback()
+            flash('Este nombre de usuario ya está en uso. Por favor, elige otro.', 'danger')
+        except Exception as e: # <--- MANEJO DE OTROS ERRORES INESPERADOS
+            db.session.rollback()
+            flash(f'Ocurrió un error inesperado al registrarte: {str(e)}', 'danger')
     return render_template('register.html', form=form)
 
 @app.route('/add', methods=['GET', 'POST'])
