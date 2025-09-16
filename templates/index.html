@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block title %}Mis Ideas{% endblock %}
+{% block content %}
+<h1 class="text-center mb-4">🚀 Mi Dashboard de Ideas</h1>
+<hr>
+
+{% if current_user.is_authenticated %}
+<div class="row text-center mb-5"> {# Margen inferior aumentado #}
+    <div class="col-md-3 mb-3"> {# Añadido mb-3 para espaciado en móviles #}
+        <div class="card h-100"> {# h-100 para que las tarjetas tengan la misma altura #}
+            <div class="card-body">
+                <h5 class="card-title">Total</h5>
+                <p class="card-text fs-3">{{ counts.total }}</p>
+                <a href="{{ url_for('index') }}" class="btn btn-sm btn-outline-secondary mt-2">Ver todas</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Pendiente</h5>
+                <p class="card-text fs-3">{{ counts.pendiente }}</p>
+                <a href="{{ url_for('index', status='Pendiente') }}" class="btn btn-sm btn-outline-secondary mt-2">Ver</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">En Progreso</h5>
+                <p class="card-text fs-3">{{ counts.en_progreso }}</p>
+                <a href="{{ url_for('index', status='En Progreso') }}" class="btn btn-sm btn-outline-secondary mt-2">Ver</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">Completada</h5>
+                <p class="card-text fs-3">{{ counts.completada }}</p>
+                <a href="{{ url_for('index', status='Completada') }}" class="btn btn-sm btn-outline-secondary mt-2">Ver</a>
+            </div>
+        </div>
+    </div>
+</div>
+<hr>
+
+<h2 class="text-center mb-4">Lista de Ideas</h2>
+<div class="d-flex justify-content-end mb-4"> {# Alinea el botón a la derecha #}
+    <a href="{{ url_for('add_idea') }}" class="btn btn-primary">Agregar Nueva Idea</a>
+</div>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for idea in ideas %}
+    <div class="col d-flex">
+        <div class="card h-100 w-100">
+            {% if idea.image_filename %}
+                <img src="{{ url_for('uploaded_file', filename=idea.image_filename) }}" class="card-img-top idea-image-card" alt="Miniatura de la idea">
+            {% else %}
+                {# Placeholder para cuando no hay imagen #}
+                <div class="idea-image-card d-flex align-items-center justify-content-center text-muted">
+                    <span>No hay imagen disponible</span>
+                </div>
+            {% endif %}
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title">{{ idea.title }}</h5>
+                <p class="card-text text-muted flex-grow-1">{{ idea.description }}</p> {# flex-grow-1 para que ocupe el espacio disponible #}
+                <p class="card-text">
+                    <small>
+                        <strong>Formato:</strong> {{ idea.format }}<br>
+                        <strong>Etiquetas:</strong> {{ idea.tags }}
+                    </small>
+                </p>
+                <div class="mt-3"> {# Margen superior para el badge #}
+                    <span class="badge badge-status-{{ idea.status.lower().replace(' ', '-') }}">{{ idea.status }}</span>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-between align-items-center"> {# Alinea verticalmente los botones #}
+                {% if idea.author == current_user or current_user.is_admin %}
+                <a href="{{ url_for('edit_idea', idea_id=idea.id) }}" class="btn btn-sm btn-info">Editar</a>
+                <a href="{{ url_for('delete_idea', idea_id=idea.id) }}" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás seguro de que quieres eliminar esta idea?');">Eliminar</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="col-12">
+        <div class="alert alert-info text-center" role="alert">
+            No tienes ideas registradas. ¡Anímate a <a href="{{ url_for('add_idea') }}" class="alert-link">agregar una nueva idea</a>!
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info text-center" role="alert">
+    Por favor, <a href="{{ url_for('login') }}" class="alert-link">inicia sesión</a> para ver y gestionar tus ideas.
+</div>
+{% endif %}
+{% endblock %}

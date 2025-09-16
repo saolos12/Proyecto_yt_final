@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Iniciar Sesión{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <h1 class="text-center mb-4">Iniciar Sesión</h1>
+        <hr>
+        <form method="POST" class="p-4 card"> {# Añadido clase card para sombreado y bordes #}
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+                {{ form.username.label(class="form-label") }}
+                {{ form.username(class="form-control") }}
+                {% for error in form.username.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="mb-4">
+                {{ form.password.label(class="form-label") }}
+                {{ form.password(class="form-control") }}
+                {% for error in form.password.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="d-grid gap-2"> {# Botones apilados y con espacio #}
+                {{ form.submit(class="btn btn-primary btn-lg") }} {# Botón más grande #}
+                <a href="{{ url_for('register') }}" class="btn btn-link text-center mt-2">¿No tienes una cuenta? Regístrate aquí.</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
